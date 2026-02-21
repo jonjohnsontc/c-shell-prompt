@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -9,7 +10,6 @@
 // Hello! I display the following in separate lines:
 // Current python3 env 
 // Current Git branch
-// Current AWS environment (based on a configured environment)
 // file-path to root of git directory
 // User @ Host in current working directory
 // Final prompt char
@@ -19,11 +19,11 @@
 #define PREFIX_SIZE				4
 #define PATH_SEP				'/'
 
-#ifdef __APPLE__
+#if defined __APPLE__
 #define HOST                    "mac"
-#elifdef __WIN32
+#elif defined __WIN32
 #define HOST                    "win"
-#elifdef __linux__
+#elif defined __linux__
 #define HOST                    "linux"
 #else
 #define HOST                    "unknown"
@@ -93,14 +93,14 @@ int main(void)
     return 0;
 }
 
-bool is_small_enough(size_t str_size, size_t cur)
+bool is_small_enough(const size_t str_size, size_t cur)
 {
     return (str_size < MAX_LINE_SIZE && cur + str_size < BUF_SIZE);
 }
 
 void sb_append(StringBuffer* buffer, const char* string, size_t len)
 {
-    constexpr size_t buffer_size = BUF_SIZE;
+    const size_t buffer_size = BUF_SIZE;
     if (buffer->cur + len < buffer_size)
     {
         memcpy(buffer->val + buffer->cur, string, len);
@@ -116,7 +116,7 @@ void add_row_to_prompt(StringBuffer* prompt, const char* row, size_t row_size)
     const size_t total_size = row_size + prefix_size;
     if (is_small_enough(total_size, prompt->cur))
     {
-        constexpr char end_char = '\n';
+        const char end_char = '\n';
         sb_append(prompt, prefix, prefix_size);
         sb_append(prompt, row, row_size);
         prompt->val[prompt->cur] = end_char;
