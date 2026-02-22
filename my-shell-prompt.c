@@ -30,8 +30,8 @@
 #endif
 
 // Style specific constants
-#define PREFIX					"▒ "
-#define PROMPT_CHAR				"℁"
+#define ROW_PREFIX				"▒ "
+#define PROMPT_CHARS			"℁ "
 
 // Colors
 #define RESET					"\033[0m"
@@ -111,7 +111,7 @@ void sb_append(StringBuffer* buffer, const char* string, size_t len)
 
 void add_row_to_prompt(StringBuffer* prompt, const char* row, size_t row_size)
 {
-    const char* prefix = COLORIZE(DEFAULT_COLOR, PREFIX);
+    const char* prefix = COLORIZE(DEFAULT_COLOR, ROW_PREFIX);
     const size_t prefix_size = strnlen(prefix, MAX_LINE_SIZE);
     const size_t total_size = row_size + prefix_size;
     if (is_small_enough(total_size, prompt->cur))
@@ -272,12 +272,15 @@ void add_shell_info(StringBuffer* buffer)
 void add_bottom_row(StringBuffer* buffer)
 {
     const char* bottom_row = COLORIZE(DEFAULT_COLOR, "▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
-    sb_append(buffer, bottom_row, strlen(bottom_row));
+    // I don't want to append this pattern if no rows of information have
+    // been written prior. The constant below (5) is arbitrary #
+    if (buffer->cur > 5)
+        sb_append(buffer, bottom_row, strlen(bottom_row));
 }
 
 void add_prompt_char(StringBuffer* buffer)
 {
-    const char* prompt_chars = CONCAT_3("\n", PROMPT_CHAR, "\n");
+    const char* prompt_chars = CONCAT_3("\n", PROMPT_CHARS, "\n");
     sb_append(buffer, prompt_chars, strlen(prompt_chars));
 }
 
